@@ -1,12 +1,72 @@
-# Scheme_Cpp
+- [Scheme](#scheme)
+  - [Выполнение выражений](#выполнение-выражений)
+    - [Пример](#пример)
+  - [Порядок решения](#порядок-решения)
+  - [Организация кода](#организация-кода)
+  - [Дополнительные материалы](#дополнительные-материалы)
+  - [Further reading](#further-reading)
 
-Implementation of an interpreter for a LISP-like programming language, namely some subset of Scheme.
-
-The language interface includes:
-
-1) Primitive types: int, bool char
-2) Composite Types: Pairs and Lists
-3) Variables with syntactic scope.
-4) Functions and lambda expressions
-
-First, the tokeynaser converts the program text into a sequence of atomic tokens. The parser reads a stream of tokens and builds a syntax tree based on them. In the base part, the main process of calculations is organized, a lot of basic functions that work with primitive and composite types are implemented. The advanced part implements support for conditional expressions, the creation of variables and lambda functions that can capture context.
+Язык будет состоять из:
+ - Примитивных типов: целых чисел, bool-ов и _символов_ (идентификаторов).
+ - Составных типов: пар и списков.
+ - Переменных с синтаксической областью видимости.
+ - Функций и лямбда-выражений.
+```
+    1 => 1
+    (+ 1 2) => 3
+```
+Обозначение `=>` в примерах здесь и далее разделяет выражение и результат его выполнения.
+## Выполнение выражений
+Выполнение языка происходит в 3 этапа:
+**Токенизация** - преобразует текст программы в последовательность атомарных лексем. 
+**Синтаксический анализ** - преобразует последовательность токенов в [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree).  AST в LISP-подобных языках программирования представляется в виде списков. 
+   
+**Вычисление** - рекурсивно обходит AST программы и преобразует его в соответствии с набором правил.
+### Пример
+Выражение 
+```
+    (+ 2 (/ -3 +4))
+``` 
+в результате токенизации превратится в список токенов:
+```
+    { 
+        OpenParen(),
+        Symbol("+"),
+        Number(2),
+        OpenParen(),
+        Symbol("/"),
+        Number(-3),
+        Number(4),
+        CloseParen(),
+        CloseParen()
+    }
+```
+     
+ Последовательность токенов в результате синтаксического анализа
+ превратится в дерево:
+     
+```
+    Cell{
+        Symbol("+"),
+        Cell{
+            Number(2),
+            Cell{
+                Cell{
+                    Symbol("/"),
+                    Cell{
+                        Number(-3),
+                        Cell{
+                            Number(4),
+                            nullptr
+                        }
+                    }
+                }
+                nullptr
+            }
+        }
+    }
+```
+Результатом же выполнения выражения будет 
+```
+    (+ 2 (/ -3 +4)) => 1
+```
